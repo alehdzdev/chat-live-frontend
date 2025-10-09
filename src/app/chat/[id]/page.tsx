@@ -68,35 +68,20 @@ export default function ChatPage() {
   const connectWebSocket = () => {
     const ws = chatService.connectWebSocket(conversationId);
 
-    ws.onopen = () => {
-      console.log("WebSocket connected");
-    };
-
+    ws.onopen = () => console.log("WebSocket connected");
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
 
-      // Check if this message already exists to prevent duplicates
       setMessages((prev) => {
-        // Check if message with same timestamp and content exists
         const exists = prev.some(
           (m) => m.timestamp === message.timestamp && m.content === message.content && m.sender_id === message.sender_id
         );
 
-        if (exists) {
-          return prev; // Don't add duplicate
-        }
-
-        return [...prev, message];
+        return exists ? prev : [...prev, message];
       });
     };
-
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket disconnected");
-    };
+    ws.onerror = (error) => console.error("WebSocket error:", error);
+    ws.onclose = () => console.log("WebSocket disconnected");
 
     wsRef.current = ws;
   };
@@ -107,11 +92,7 @@ export default function ChatPage() {
     const messageContent = newMessage;
     setNewMessage(""); // Clear input immediately
 
-    wsRef.current.send(
-      JSON.stringify({
-        message: messageContent,
-      })
-    );
+    wsRef.current.send(JSON.stringify({ message: messageContent }));
   };
 
   const scrollToBottom = () => {
@@ -136,8 +117,8 @@ export default function ChatPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col text-black">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
+      {/* Header (sticky) */}
+      <div className="sticky top-0 z-10 bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center gap-3">
             <button onClick={() => router.push("/conversations")} className="text-gray-600 hover:text-gray-900">
@@ -185,8 +166,8 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Input */}
-      <div className="bg-white border-t">
+      {/* Input (sticky bottom) */}
+      <div className="sticky bottom-0 bg-white border-t">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex gap-2">
             <input
@@ -200,7 +181,7 @@ export default function ChatPage() {
             <button
               onClick={sendMessage}
               disabled={!newMessage.trim()}
-              className="rounded-full btn disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-full bg-[#e05c28] text-white px-5 py-2 font-semibold hover:bg-[#d44f1f] transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Send
             </button>

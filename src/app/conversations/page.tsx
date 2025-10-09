@@ -106,12 +106,12 @@ export default function ConversationsPage() {
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            <h1 className="text-xl font-bold">Messages</h1>
+            <h1 className="text-xl font-bold">Chats</h1>
             <div className="flex gap-2">
-              <button onClick={() => router.push("/dashboard")} className="text-gray-600 hover:text-gray-900">
+              <button onClick={() => router.push("/dashboard")} className="btn">
                 Profile
               </button>
-              <button onClick={handleLogout} className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">
+              <button onClick={handleLogout} className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-700">
                 Logout
               </button>
             </div>

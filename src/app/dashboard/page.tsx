@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { authService } from '@/lib/auth';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { authService } from "@/lib/auth";
 
 interface User {
   id: number;
@@ -18,13 +18,13 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
+    first_name: "",
+    last_name: "",
   });
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
     loadProfile();
@@ -35,11 +35,11 @@ export default function DashboardPage() {
       const data = await authService.getProfile();
       setUser(data);
       setFormData({
-        first_name: data.first_name || '',
-        last_name: data.last_name || '',
+        first_name: data.first_name || "",
+        last_name: data.last_name || "",
       });
     } catch (error) {
-      console.error('Failed to load profile:', error);
+      console.error("Failed to load profile:", error);
     } finally {
       setLoading(false);
     }
@@ -47,7 +47,7 @@ export default function DashboardPage() {
 
   const handleLogout = async () => {
     await authService.logout();
-    router.push('/login');
+    router.push("/login");
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -57,7 +57,7 @@ export default function DashboardPage() {
       setUser(updated);
       setEditing(false);
     } catch (error) {
-      console.error('Failed to update profile:', error);
+      console.error("Failed to update profile:", error);
     }
   };
 
@@ -70,22 +70,16 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 text-black">
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <h1 className="text-xl font-bold">Dashboard</h1>
             <div className="flex gap-2">
-              <button
-                onClick={() => router.push('/conversations')}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-              >
-                Messages
+              <button onClick={() => router.push("/conversations")} className="px-4 py-2 rounded-md btn">
+                Chats
               </button>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
-              >
+              <button onClick={handleLogout} className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">
                 Logout
               </button>
             </div>
@@ -98,10 +92,7 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Profile</h2>
             {!editing && (
-              <button
-                onClick={() => setEditing(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-              >
+              <button onClick={() => setEditing(true)} className="px-4 py-2 rounded-md btn">
                 Edit Profile
               </button>
             )}
@@ -119,11 +110,11 @@ export default function DashboardPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">First Name</label>
-                <p className="text-lg">{user?.first_name || 'Not set'}</p>
+                <p className="text-lg">{user?.first_name || "Not set"}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">Last Name</label>
-                <p className="text-lg">{user?.last_name || 'Not set'}</p>
+                <p className="text-lg">{user?.last_name || "Not set"}</p>
               </div>
             </div>
           ) : (
@@ -147,10 +138,7 @@ export default function DashboardPage() {
                 />
               </div>
               <div className="flex gap-2">
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                >
+                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
                   Save Changes
                 </button>
                 <button
