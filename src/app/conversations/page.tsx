@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/lib/auth";
 import { chatService, Conversation, User } from "@/lib/chat";
+import { AxiosError } from "axios";
 
 export default function ConversationsPage() {
   const router = useRouter();
@@ -34,10 +35,10 @@ export default function ConversationsPage() {
         setConversations([]);
         setError("Failed to load conversations");
       }
-    } catch (error: any) {
-      console.error("Failed to load conversations:", error);
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ error?: string }>;
       setConversations([]);
-      setError(error.response?.data?.error || "Failed to load conversations");
+      setError(axiosError.response?.data?.error || "Failed to load conversations");
     } finally {
       setLoading(false);
     }
@@ -55,10 +56,10 @@ export default function ConversationsPage() {
       } else {
         setSearchResults([]);
       }
-    } catch (error: any) {
-      console.error("Search failed:", error);
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ error?: string }>;
       setSearchResults([]);
-      setError(error.response?.data?.error || "Search failed");
+      setError(axiosError.response?.data?.error || "Search failed");
     } finally {
       setSearching(false);
     }
@@ -69,9 +70,9 @@ export default function ConversationsPage() {
       setError("");
       const conversation = await chatService.createConversation(userId);
       router.push(`/chat/${conversation.id}`);
-    } catch (error: any) {
-      console.error("Failed to create conversation:", error);
-      setError(error.response?.data?.error || "Failed to create conversation");
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ error?: string }>;
+      setError(axiosError.response?.data?.error || "Failed to create conversation");
     }
   };
 

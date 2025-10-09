@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authService } from "@/lib/auth";
+import { AxiosError } from "axios";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -26,8 +27,9 @@ export default function RegisterPage() {
     try {
       await authService.register(formData);
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Registration failed");
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ error?: string }>;
+      setError(axiosError.response?.data?.error || "Registration failed");
     } finally {
       setLoading(false);
     }

@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { authService } from "@/lib/auth";
-import { chatService, Message, Conversation } from "@/lib/chat";
+import { chatService, Message, Conversation, User } from "@/lib/chat";
 
 export default function ChatPage() {
   const router = useRouter();
@@ -14,7 +14,7 @@ export default function ChatPage() {
   const [newMessage, setNewMessage] = useState("");
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [loading, setLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);

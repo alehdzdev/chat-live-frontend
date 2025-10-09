@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authService } from "@/lib/auth";
+import { AxiosError } from "axios";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,8 +23,9 @@ export default function LoginPage() {
     try {
       await authService.login(formData);
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Login failed");
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ error?: string }>;
+      setError(axiosError.response?.data?.error || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -75,7 +77,7 @@ export default function LoginPage() {
         </form>
 
         <p className="mt-4 text-center text-sm">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/register" className="text-[#e05c28] hover:underline">
             Register here
           </Link>

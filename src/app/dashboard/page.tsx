@@ -28,7 +28,7 @@ export default function DashboardPage() {
       return;
     }
     loadProfile();
-  }, []);
+  }, [router]);
 
   const loadProfile = async () => {
     try {
