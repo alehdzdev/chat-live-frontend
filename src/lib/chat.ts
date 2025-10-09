@@ -61,7 +61,7 @@ export const chatService = {
   connectWebSocket(conversationId: number) {
     const token = Cookies.get('access_token');
     const ws = new WebSocket(
-      `ws://localhost:8000/ws/chat/${conversationId}/?token=${token}`
+      `${process.env.NEXT_PUBLIC_WS_URL}/chat/${conversationId}/?token=${token}`
     );
     return ws;
   },
