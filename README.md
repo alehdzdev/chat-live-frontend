@@ -303,14 +303,6 @@ npx tsc --noEmit
 
 ```
 
-## Run Project Locally
-
-```bash
-npm install
-
-npm run dev
-```
-
 ## 🚀 Production Deployment
 
 ### Build
