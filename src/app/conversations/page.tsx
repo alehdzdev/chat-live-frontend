@@ -1,22 +1,23 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { authService } from '@/lib/auth';
-import { chatService, Conversation, User } from '@/lib/chat';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { authService } from "@/lib/auth";
+import { chatService, Conversation, User } from "@/lib/chat";
 
 export default function ConversationsPage() {
   const router = useRouter();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewChat, setShowNewChat] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [searching, setSearching] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
     loadConversations();
@@ -25,9 +26,18 @@ export default function ConversationsPage() {
   const loadConversations = async () => {
     try {
       const data = await chatService.getConversations();
-      setConversations(data);
-    } catch (error) {
-      console.error('Failed to load conversations:', error);
+      // Ensure data is an array
+      if (Array.isArray(data)) {
+        setConversations(data);
+      } else {
+        console.error("Invalid data format:", data);
+        setConversations([]);
+        setError("Failed to load conversations");
+      }
+    } catch (error: any) {
+      console.error("Failed to load conversations:", error);
+      setConversations([]);
+      setError(error.response?.data?.error || "Failed to load conversations");
     } finally {
       setLoading(false);
     }
@@ -35,13 +45,20 @@ export default function ConversationsPage() {
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
-    
+
     setSearching(true);
+    setError("");
     try {
       const results = await chatService.searchUsers(searchQuery);
-      setSearchResults(results);
-    } catch (error) {
-      console.error('Search failed:', error);
+      if (Array.isArray(results)) {
+        setSearchResults(results);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (error: any) {
+      console.error("Search failed:", error);
+      setSearchResults([]);
+      setError(error.response?.data?.error || "Search failed");
     } finally {
       setSearching(false);
     }
@@ -49,16 +66,18 @@ export default function ConversationsPage() {
 
   const handleStartConversation = async (userId: number) => {
     try {
+      setError("");
       const conversation = await chatService.createConversation(userId);
       router.push(`/chat/${conversation.id}`);
-    } catch (error) {
-      console.error('Failed to create conversation:', error);
+    } catch (error: any) {
+      console.error("Failed to create conversation:", error);
+      setError(error.response?.data?.error || "Failed to create conversation");
     }
   };
 
   const handleLogout = async () => {
     await authService.logout();
-    router.push('/login');
+    router.push("/login");
   };
 
   const formatTime = (timestamp: string) => {
@@ -66,8 +85,8 @@ export default function ConversationsPage() {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
-    
-    if (diffMins < 1) return 'Just now';
+
+    if (diffMins < 1) return "Just now";
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
     return date.toLocaleDateString();
@@ -82,23 +101,17 @@ export default function ConversationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 text-black">
       {/* Header */}
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <h1 className="text-xl font-bold">Messages</h1>
             <div className="flex gap-2">
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="text-gray-600 hover:text-gray-900"
-              >
+              <button onClick={() => router.push("/dashboard")} className="text-gray-600 hover:text-gray-900">
                 Profile
               </button>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
-              >
+              <button onClick={handleLogout} className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">
                 Logout
               </button>
             </div>
@@ -109,12 +122,12 @@ export default function ConversationsPage() {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto mt-8 px-4">
         <div className="bg-white rounded-lg shadow-md">
+          {/* Error Message */}
+          {error && <div className="p-4 bg-red-100 border-b border-red-400 text-red-700">{error}</div>}
+
           {/* New Chat Button */}
           <div className="p-4 border-b">
-            <button
-              onClick={() => setShowNewChat(!showNewChat)}
-              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
-            >
+            <button onClick={() => setShowNewChat(!showNewChat)} className="w-full btn">
               + New Chat
             </button>
           </div>
@@ -128,16 +141,12 @@ export default function ConversationsPage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                  placeholder="Search users..."
+                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                  placeholder="Search usernames..."
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <button
-                  onClick={handleSearch}
-                  disabled={searching}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {searching ? 'Searching...' : 'Search'}
+                <button onClick={handleSearch} disabled={searching} className="btn disabled:opacity-50">
+                  {searching ? "Searching..." : "Search"}
                 </button>
               </div>
 
@@ -156,7 +165,7 @@ export default function ConversationsPage() {
                           {user.first_name} {user.last_name}
                         </p>
                       </div>
-                      <button className="text-blue-600 text-sm">Chat</button>
+                      <button className="text-[#e05c28] text-sm">Chat</button>
                     </div>
                   ))}
                 </div>
@@ -166,10 +175,8 @@ export default function ConversationsPage() {
 
           {/* Conversations List */}
           <div className="divide-y">
-            {conversations.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
-                No conversations yet. Start a new chat!
-              </div>
+            {!Array.isArray(conversations) || conversations.length === 0 ? (
+              <div className="p-8 text-center text-gray-500">No conversations yet. Start a new chat!</div>
             ) : (
               conversations.map((conversation) => (
                 <div
@@ -180,18 +187,16 @@ export default function ConversationsPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
-                          {conversation.other_participant.username[0].toUpperCase()}
+                        <div className="w-10 h-10 bg-[#e05c28] rounded-full flex items-center justify-center text-white font-semibold">
+                          {conversation.other_participant?.username?.[0]?.toUpperCase() || "?"}
                         </div>
                         <div className="flex-1">
-                          <p className="font-semibold">
-                            {conversation.other_participant.username}
-                          </p>
+                          <p className="font-semibold">{conversation.other_participant?.username || "Unknown User"}</p>
                           {conversation.last_message && (
                             <p className="text-sm text-gray-600 truncate">
-                              {conversation.last_message.sender_username === conversation.other_participant.username
-                                ? ''
-                                : 'You: '}
+                              {conversation.last_message.sender_username === conversation.other_participant?.username
+                                ? ""
+                                : "You: "}
                               {conversation.last_message.content}
                             </p>
                           )}
@@ -199,9 +204,7 @@ export default function ConversationsPage() {
                       </div>
                     </div>
                     {conversation.last_message && (
-                      <span className="text-xs text-gray-500">
-                        {formatTime(conversation.last_message.timestamp)}
-                      </span>
+                      <span className="text-xs text-gray-500">{formatTime(conversation.last_message.timestamp)}</span>
                     )}
                   </div>
                 </div>

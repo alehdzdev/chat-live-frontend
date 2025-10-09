@@ -13,16 +13,10 @@ export default function Home() {
         <p className="text-xl mb-4">Chat Live System with Django & Next.js</p>
         <p className="text-sm mb-8">By Alejandro Hernandez</p>
         <div className="space-x-4">
-          <Link
-            href="/login"
-            className="bg-[#e05c28] text-white px-6 py-3 rounded-md font-semibold hover:bg-[#e05c28]/80 hover:text-white inline-block"
-          >
+          <Link href="/login" className="btn">
             Login
           </Link>
-          <Link
-            href="/register"
-            className="bg-[#e05c28] border-2 border-white text-white px-6 py-3 rounded-md font-semibold hover:bg-[#e05c28]/80 hover:text-white inline-block"
-          >
+          <Link href="/register" className="btn">
             Register
           </Link>
         </div>

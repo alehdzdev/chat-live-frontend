@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@tailwind components;
 
 :root {
   --background: #ffffff;
@@ -23,4 +24,10 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer components {
+  .btn {
+    @apply px-6 py-3 border-white rounded-md bg-[#e05c28] text-white hover:bg-[#e05c28]/80 transition font-semibold inline-block;
+  }
 }
