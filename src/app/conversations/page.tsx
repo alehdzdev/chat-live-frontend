@@ -22,7 +22,7 @@ export default function ConversationsPage() {
       return;
     }
     loadConversations();
-  }, []);
+  }, [router]);
 
   const loadConversations = async () => {
     try {
