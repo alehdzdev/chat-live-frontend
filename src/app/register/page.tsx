@@ -45,10 +45,17 @@ export default function RegisterPage() {
       if (axiosError.response?.status === 400 && axiosError.response.data) {
         const data = axiosError.response.data;
 
-        if (typeof data === "object" && !("detail" in data)) {
+        const isFieldErrors = (d: unknown): d is FieldErrors =>
+          typeof d === "object" &&
+          d !== null &&
+          Object.values(d).every((v) => Array.isArray(v) && v.every((x) => typeof x === "string"));
+        const isDetailError = (d: unknown): d is { detail?: string } =>
+          typeof d === "object" && d !== null && "detail" in d;
+
+        if (isFieldErrors(data)) {
           setFieldErrors(data);
           setError("Please correct the highlighted fields.");
-        } else if ("detail" in data && data.detail) {
+        } else if (isDetailError(data) && data.detail) {
           setError(data.detail);
         } else {
           setError("Invalid input. Please check the form.");
