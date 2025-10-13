@@ -107,14 +107,6 @@ export default function ChatPage() {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading chat...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col text-black">
       {/* Header (sticky) */}

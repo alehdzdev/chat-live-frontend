@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 interface User {
   id: number;
@@ -60,14 +61,6 @@ export default function DashboardPage() {
       console.error("Failed to update profile:", error);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-100 text-black">

@@ -75,7 +75,7 @@ Create a `.env.local` file:
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:8000/api
-NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws/
+NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
 ```
 
 ### Next.js Configuration
@@ -331,7 +331,7 @@ vercel --prod
 
 ```env
 NEXT_PUBLIC_API_URL=https://api.yourdomain.com/api
-NEXT_PUBLIC_WS_URL=wss://api.yourdomain.com
+NEXT_PUBLIC_WS_URL=ws://api.yourdomain.com
 ```
 
 ## 🐛 Troubleshooting

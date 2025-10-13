@@ -93,14 +93,6 @@ export default function ConversationsPage() {
     return date.toLocaleDateString();
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-100 text-black">
       {/* Header */}
