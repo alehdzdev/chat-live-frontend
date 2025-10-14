@@ -86,10 +86,7 @@ export default function ChatPage() {
       // ✅ Si es un mensaje normal
       setMessages((prev) => {
         const exists = prev.some(
-          (m) =>
-            m.timestamp === data.timestamp &&
-            m.content === data.content &&
-            m.sender_id === data.sender_id
+          (m) => m.timestamp === data.timestamp && m.content === data.content && m.sender_id === data.sender_id
         );
 
         return exists ? prev : [...prev, data];
@@ -123,10 +120,6 @@ export default function ChatPage() {
     });
   };
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-600">Loading chat...</div>;
-  }
-
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col text-black">
       {/* Header */}
@@ -153,9 +146,7 @@ export default function ChatPage() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
           {messages.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">
-              No messages yet. Start the conversation!
-            </div>
+            <div className="text-center text-gray-500 py-8">No messages yet. Start the conversation!</div>
           ) : (
             messages.map((message, index) => {
               const isCurrentUser = currentUser?.id === message.sender_id;
@@ -166,15 +157,9 @@ export default function ChatPage() {
                       isCurrentUser ? "bg-[#e05c28] text-white" : "bg-white text-gray-900"
                     }`}
                   >
-                    {!isCurrentUser && (
-                      <p className="text-xs font-semibold mb-1">{message.sender_username}</p>
-                    )}
+                    {!isCurrentUser && <p className="text-xs font-semibold mb-1">{message.sender_username}</p>}
                     <p className="break-words">{message.content}</p>
-                    <p
-                      className={`text-xs mt-1 ${
-                        isCurrentUser ? "text-white" : "text-gray-500"
-                      }`}
-                    >
+                    <p className={`text-xs mt-1 ${isCurrentUser ? "text-white" : "text-gray-500"}`}>
                       {formatMessageTime(message.timestamp)}
                     </p>
                   </div>
@@ -208,11 +193,7 @@ export default function ChatPage() {
               </button>
             </div>
 
-            {errorMessage && (
-              <div className="text-red-600 text-sm text-center font-medium">
-                {errorMessage}
-              </div>
-            )}
+            {errorMessage && <div className="text-red-600 text-sm text-center font-medium">{errorMessage}</div>}
           </div>
         </div>
       </div>
