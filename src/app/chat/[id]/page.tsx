@@ -15,6 +15,7 @@ export default function ChatPage() {
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -69,17 +70,32 @@ export default function ChatPage() {
     const ws = chatService.connectWebSocket(conversationId);
 
     ws.onopen = () => console.log("WebSocket connected");
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
 
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      // ✅ Si viene un error desde el backend (ej. throttling)
+      if (data.error) {
+        setErrorMessage(data.error);
+
+        // Quitar el mensaje de error automáticamente después de unos segundos
+        setTimeout(() => setErrorMessage(null), 4000);
+        return;
+      }
+
+      // ✅ Si es un mensaje normal
       setMessages((prev) => {
         const exists = prev.some(
-          (m) => m.timestamp === message.timestamp && m.content === message.content && m.sender_id === message.sender_id
+          (m) =>
+            m.timestamp === data.timestamp &&
+            m.content === data.content &&
+            m.sender_id === data.sender_id
         );
 
-        return exists ? prev : [...prev, message];
+        return exists ? prev : [...prev, data];
       });
     };
+
     ws.onerror = (error) => console.error("WebSocket error:", error);
     ws.onclose = () => console.log("WebSocket disconnected");
 
@@ -90,7 +106,7 @@ export default function ChatPage() {
     if (!newMessage.trim() || !wsRef.current) return;
 
     const messageContent = newMessage;
-    setNewMessage(""); // Clear input immediately
+    setNewMessage(""); // limpia el input
 
     wsRef.current.send(JSON.stringify({ message: messageContent }));
   };
@@ -107,9 +123,13 @@ export default function ChatPage() {
     });
   };
 
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-600">Loading chat...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col text-black">
-      {/* Header (sticky) */}
+      {/* Header */}
       <div className="sticky top-0 z-10 bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center gap-3">
@@ -133,7 +153,9 @@ export default function ChatPage() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
           {messages.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">No messages yet. Start the conversation!</div>
+            <div className="text-center text-gray-500 py-8">
+              No messages yet. Start the conversation!
+            </div>
           ) : (
             messages.map((message, index) => {
               const isCurrentUser = currentUser?.id === message.sender_id;
@@ -144,9 +166,15 @@ export default function ChatPage() {
                       isCurrentUser ? "bg-[#e05c28] text-white" : "bg-white text-gray-900"
                     }`}
                   >
-                    {!isCurrentUser && <p className="text-xs font-semibold mb-1">{message.sender_username}</p>}
+                    {!isCurrentUser && (
+                      <p className="text-xs font-semibold mb-1">{message.sender_username}</p>
+                    )}
                     <p className="break-words">{message.content}</p>
-                    <p className={`text-xs mt-1 ${isCurrentUser ? "text-white" : "text-gray-500"}`}>
+                    <p
+                      className={`text-xs mt-1 ${
+                        isCurrentUser ? "text-white" : "text-gray-500"
+                      }`}
+                    >
                       {formatMessageTime(message.timestamp)}
                     </p>
                   </div>
@@ -158,25 +186,33 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Input (sticky bottom) */}
+      {/* Input */}
       <div className="sticky bottom-0 bg-white border-t">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-              placeholder="Type a message..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              onClick={sendMessage}
-              disabled={!newMessage.trim()}
-              className="rounded-full bg-[#e05c28] text-white px-5 py-2 font-semibold hover:bg-[#d44f1f] transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Send
-            </button>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+                placeholder="Type a message..."
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={sendMessage}
+                disabled={!newMessage.trim()}
+                className="rounded-full bg-[#e05c28] text-white px-5 py-2 font-semibold hover:bg-[#d44f1f] transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Send
+              </button>
+            </div>
+
+            {errorMessage && (
+              <div className="text-red-600 text-sm text-center font-medium">
+                {errorMessage}
+              </div>
+            )}
           </div>
         </div>
       </div>
